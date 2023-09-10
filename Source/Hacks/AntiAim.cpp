@@ -10,8 +10,6 @@
 #include "../SDK/UserCmd.h"
 #include "../SDK/Vector.h"
 
-#if OSIRIS_ANTIAIM()
-
 struct AntiAimConfig {
     bool enabled = false;
     bool pitch = false;
@@ -67,7 +65,7 @@ void AntiAim::drawGUI(bool contentOnly) noexcept
         ImGui::SetNextWindowSize({ 0.0f, 0.0f });
         ImGui::Begin(Language::getText(LanguageID::GUI_TAB_ANTIAIM), &antiAimOpen, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
     }
-    ImGui::Checkbox("Enabled", &antiAimConfig.enabled);
+    ImGui::Checkbox(Language::getText(LanguageID::GUI_GLOBAL_ENABLED), &antiAimConfig.enabled);
     ImGui::Checkbox("##pitch", &antiAimConfig.pitch);
     ImGui::SameLine();
     ImGui::SliderFloat("Pitch", &antiAimConfig.pitchAngle, -89.0f, 89.0f, "%.2f");
@@ -108,22 +106,3 @@ void AntiAim::resetConfig() noexcept
 {
     antiAimConfig = { };
 }
-
-#else
-
-namespace AntiAim
-{
-    void run(UserCmd*, const Vector&, const Vector&, bool&) noexcept {}
-
-    // GUI
-    void menuBarItem() noexcept {}
-    void tabItem() noexcept {}
-    void drawGUI(bool contentOnly) noexcept {}
-
-    // Config
-    json toJson() noexcept { return {}; }
-    void fromJson(const json& j) noexcept {}
-    void resetConfig() noexcept {}
-}
-
-#endif

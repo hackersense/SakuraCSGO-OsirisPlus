@@ -913,7 +913,7 @@ void StreamProofESP::drawGUI(bool contentOnly) noexcept
     if (ImGui::BeginChild("##child", { 400.0f, 0.0f })) {
         auto& sharedConfig = getConfigShared(currentCategory, currentItem);
 
-        ImGui::Checkbox("Enabled", &sharedConfig.enabled);
+        ImGui::Checkbox(Language::getText(LanguageID::GUI_GLOBAL_ENABLED), &sharedConfig.enabled);
         ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - 260.0f);
         ImGui::SetNextItemWidth(220.0f);
         if (ImGui::BeginCombo("Font", config->getSystemFonts()[sharedConfig.font.index].c_str())) {

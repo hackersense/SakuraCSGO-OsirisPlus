@@ -27,8 +27,6 @@
 #include "../SDK/Vector.h"
 #include "../imguiCustom.h"
 
-#if OSIRIS_GLOW()
-
 struct GlowItem : Color4 {
     bool enabled = false;
     bool healthBased = false;
@@ -236,7 +234,7 @@ void Glow::drawGUI(bool contentOnly) noexcept
     }
 
     ImGui::SameLine();
-    ImGui::Checkbox("Enabled", &currentItem->enabled);
+    ImGui::Checkbox(Language::getText(LanguageID::GUI_GLOBAL_ENABLED), &currentItem->enabled);
     ImGui::Separator();
     ImGui::Columns(2, nullptr, false);
     ImGui::SetColumnOffset(1, 150.0f);
@@ -309,21 +307,3 @@ void Glow::resetConfig() noexcept
     glowToggleKey = {};
     glowHoldKey = {};
 }
-
-#else
-
-void Glow::render() noexcept {}
-void Glow::clearCustomObjects() noexcept {}
-void Glow::updateInput() noexcept {}
-
-// GUI
-void Glow::menuBarItem() noexcept {}
-void Glow::tabItem() noexcept {}
-void Glow::drawGUI(bool contentOnly) noexcept {}
-
-// Config
-json Glow::toJson() noexcept { return {}; }
-void Glow::fromJson(const json& j) noexcept {}
-void Glow::resetConfig() noexcept {}
-
-#endif

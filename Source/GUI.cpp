@@ -282,7 +282,7 @@ void GUI::renderAimbotWindow(bool contentOnly) noexcept
     }
     ImGui::PopID();
     ImGui::SameLine();
-    ImGui::Checkbox("Enabled", &config->aimbot[currentWeapon].enabled);
+    ImGui::Checkbox(Language::getText(LanguageID::GUI_GLOBAL_ENABLED), &config->aimbot[currentWeapon].enabled);
     ImGui::Columns(2, nullptr, false);
     ImGui::SetColumnOffset(1, 220.0f);
     ImGui::Checkbox("Aimlock", &config->aimbot[currentWeapon].aimlock);
@@ -417,7 +417,7 @@ void GUI::renderTriggerbotWindow(bool contentOnly) noexcept
     }
     ImGui::PopID();
     ImGui::SameLine();
-    ImGui::Checkbox("Enabled", &config->triggerbot[currentWeapon].enabled);
+    ImGui::Checkbox(Language::getText(LanguageID::GUI_GLOBAL_ENABLED), &config->triggerbot[currentWeapon].enabled);
     ImGui::Separator();
     ImGui::hotkey("Hold Key", config->triggerbotHoldKey);
     ImGui::Checkbox("Friendly fire", &config->triggerbot[currentWeapon].friendlyFire);
@@ -484,7 +484,7 @@ void GUI::renderChamsWindow(bool contentOnly) noexcept
 
     auto& chams{ config->chams[categories[currentCategory]].materials[material - 1] };
 
-    ImGui::Checkbox("Enabled", &chams.enabled);
+    ImGui::Checkbox(Language::getText(LanguageID::GUI_GLOBAL_ENABLED), &chams.enabled);
     ImGui::Separator();
     ImGui::Checkbox("Health based", &chams.healthBased);
     ImGui::Checkbox("Blinking", &chams.blinking);
@@ -513,7 +513,7 @@ void GUI::renderStyleWindow(bool contentOnly) noexcept
         window = { };
     if (ImGui::Combo("Menu colors", &config->style.menuColors, "Dark\0Light\0Classic\0Custom\0"))
         updateColors();
-    if (ImGui::Combo("Menu language", &config->style.menuLanguage, "English\0Chinese\0"))
+    if (ImGui::Combo("Menu language", &config->style.menuLanguage, "English\0简体中文\0"))
     ImGui::PopItemWidth();
 
     if (config->style.menuColors == 3) {
@@ -545,7 +545,7 @@ void GUI::renderConfigWindow(bool contentOnly) noexcept
     ImGui::SetColumnOffset(1, 170.0f);
 
     static bool incrementalLoad = false;
-    ImGui::Checkbox("Incremental Load", &incrementalLoad);
+    ImGui::Checkbox(Language::getText(LanguageID::GUI_CONFIG_INCREMENTALLOAD), &incrementalLoad);
 
     ImGui::PushItemWidth(160.0f);
 
@@ -573,7 +573,7 @@ void GUI::renderConfigWindow(bool contentOnly) noexcept
             buffer = configItems[currentConfig];
 
         ImGui::PushID(0);
-        if (ImGui::InputTextWithHint("", "config name", &buffer, ImGuiInputTextFlags_EnterReturnsTrue)) {
+        if (ImGui::InputTextWithHint("", Language::getText(LanguageID::GUI_CONFIG_NAME), &buffer, ImGuiInputTextFlags_EnterReturnsTrue)) {
             if (currentConfig != -1)
                 config->rename(currentConfig, buffer);
         }
@@ -582,17 +582,17 @@ void GUI::renderConfigWindow(bool contentOnly) noexcept
 
         ImGui::PushItemWidth(100.0f);
 
-        if (ImGui::Button("Open config directory"))
+        if (ImGui::Button(Language::getText(LanguageID::GUI_CONFIG_OPENDIRECTORY)))
             config->openConfigDir();
 
-        if (ImGui::Button("Create config", { 100.0f, 25.0f }))
+        if (ImGui::Button(Language::getText(LanguageID::GUI_CONFIG_CREATE), { 100.0f, 25.0f }))
             config->add(buffer.c_str());
 
-        if (ImGui::Button("Reset config", { 100.0f, 25.0f }))
+        if (ImGui::Button(Language::getText(LanguageID::GUI_CONFIG_RESET), { 100.0f, 25.0f }))
             ImGui::OpenPopup("Config to reset");
 
         if (ImGui::BeginPopup("Config to reset")) {
-            static constexpr const char* names[]{ "Whole", "Aimbot", "Triggerbot", "Backtrack", "Anti aim", "Glow", "Chams", "ESP", "Visuals", "Profile Changer", "Inventory Changer", "Sound", "Style", "Misc" };
+            static constexpr const char* names[]{ "Whole", "Aimbot", "Triggerbot", "Backtrack", "Anti aim", "Glow", "Chams", "ESP", "Visuals", "Profile Changer", "Inventory Changer", "Sound", "Style", "Misc"};
             for (int i = 0; i < IM_ARRAYSIZE(names); i++) {
                 if (i == 1) ImGui::Separator();
 
@@ -643,21 +643,21 @@ void GUI::renderConfigWindow(bool contentOnly) noexcept
 
 void GUI::renderGuiStyle2() noexcept
 {
-    ImGui::Begin("Osiris", nullptr, windowFlags | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize);
+    ImGui::Begin("Sakura", nullptr, windowFlags | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize);
 
     if (ImGui::BeginTabBar("TabBar", ImGuiTabBarFlags_Reorderable | ImGuiTabBarFlags_FittingPolicyScroll | ImGuiTabBarFlags_NoTooltip)) {
-        if (ImGui::BeginTabItem("Aimbot")) {
+        if (ImGui::BeginTabItem(Language::getText(LanguageID::GUI_TAB_AIMBOT))) {
             renderAimbotWindow(true);
             ImGui::EndTabItem();
         }
         AntiAim::tabItem();
-        if (ImGui::BeginTabItem("Triggerbot")) {
+        if (ImGui::BeginTabItem(Language::getText(LanguageID::GUI_TAB_TRIGGERBOT))) {
             renderTriggerbotWindow(true);
             ImGui::EndTabItem();
         }
         Backtrack::tabItem();
         Glow::tabItem();
-        if (ImGui::BeginTabItem("Chams")) {
+        if (ImGui::BeginTabItem(Language::getText(LanguageID::GUI_TAB_CHAMS))) {
             renderChamsWindow(true);
             ImGui::EndTabItem();
         }
@@ -666,12 +666,12 @@ void GUI::renderGuiStyle2() noexcept
         ProfileChanger::tabItem();
         InventoryChanger::tabItem();
         Sound::tabItem();
-        if (ImGui::BeginTabItem("Style")) {
+        if (ImGui::BeginTabItem(Language::getText(LanguageID::GUI_TAB_STYLE))) {
             renderStyleWindow(true);
             ImGui::EndTabItem();
         }
         Misc::tabItem();
-        if (ImGui::BeginTabItem("Config")) {
+        if (ImGui::BeginTabItem(Language::getText(LanguageID::GUI_TAB_CONFIG))) {
             renderConfigWindow(true);
             ImGui::EndTabItem();
         }

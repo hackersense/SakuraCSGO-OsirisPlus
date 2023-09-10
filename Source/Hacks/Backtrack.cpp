@@ -283,7 +283,7 @@ void Backtrack::drawGUI(bool contentOnly) noexcept
         ImGui::SetNextWindowSize({ 0.0f, 0.0f });
         ImGui::Begin(Language::getText(LanguageID::GUI_TAB_BACKTRACK), &backtrackWindowOpen, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
     }
-    ImGui::Checkbox("Enabled", &backtrackConfig.enabled);
+    ImGui::Checkbox(Language::getText(LanguageID::GUI_GLOBAL_ENABLED), &backtrackConfig.enabled);
     ImGui::Checkbox("Ignore smoke", &backtrackConfig.ignoreSmoke);
     ImGui::Checkbox("Ignore flash", &backtrackConfig.ignoreFlash);
     ImGui::Checkbox("Recoil based fov", &backtrackConfig.recoilBasedFov);
