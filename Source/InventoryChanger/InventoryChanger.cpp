@@ -567,7 +567,7 @@ namespace ImGui
             const auto cursorPosBackup = window->DC.CursorPos.y;
 
             window->DC.CursorPos.y += (size.y - GetFrameHeight()) * 0.5f;
-            pressed = Button("Add");
+            pressed = Button(Language::getText(LanguageID::GUI_INVENTORYCHANGER_ADD));
 
             window->DC.CursorPosPrevLine.y = cursorPosBackup;
             window->DC.CursorPos.y = cursorPosNext;
@@ -719,12 +719,12 @@ void InventoryChanger::drawGUI(bool contentOnly)
 
     static bool isInAddMode = false;
 
-    if (!isInAddMode && ImGui::Button("Add items.."))
+    if (!isInAddMode && ImGui::Button(Language::getText(LanguageID::GUI_INVENTORYCHANGER_ADDITEM)))
         isInAddMode = true;
 
     if (!isInAddMode) {
         ImGui::SameLine();
-        if (ImGui::Button("Force Update"))
+        if (ImGui::Button(Language::getText(LanguageID::GUI_INVENTORYCHANGER_FORCEUPDATE)))
             scheduleHudUpdate();
     }
 
@@ -743,15 +743,15 @@ void InventoryChanger::drawGUI(bool contentOnly)
     };
 
     if (isInAddMode) {
-        if (ImGui::Button("Back")) {
+        if (ImGui::Button(Language::getText(LanguageID::GUI_INVENTORYCHANGER_BACK))) {
             isInAddMode = false;
         }
 
         ImGui::SameLine();
         ImGui::SetNextItemWidth(550.0f);
-        const bool filterChanged = ImGui::InputTextWithHint("##search", "Search weapon skins, stickers, knives, gloves, music kits..", &filter);
+        const bool filterChanged = ImGui::InputTextWithHint("##search", Language::getText(LanguageID::GUI_INVENTORYCHANGER_SEARCH), &filter);
         ImGui::SameLine();
-        const bool addingAll = ImGui::Button("Add all in list");
+        const bool addingAll = ImGui::Button(Language::getText(LanguageID::GUI_INVENTORYCHANGER_ADDALL));
 
         constexpr auto passesFilter = []<typename... Strings>(std::wstring_view filter, Strings&&... strings) {
             for (const auto filterWord : ranges::views::split(filter, L' ')) {

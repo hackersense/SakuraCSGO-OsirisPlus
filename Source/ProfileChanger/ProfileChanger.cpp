@@ -192,7 +192,7 @@ void ProfileChanger::drawGUI(bool contentOnly) noexcept
     const char* mmrank = "Off\0Silver 1\0Silver 2\0Silver 3\0Silver 4\0Silver elite\0Silver elite master\0Gold nova 1\0Gold nova 2\0Gold nova 3\0Gold nova master\0Master guardian 1\0Master guardian 1\0Master guardian elite\0Distinguished master guardian\0Legendary eagle\0Legendary eagle master\0Supreme master first class\0The global elite\0";
     const char* dzrank = "Off\0Lab rat 1\0Lab rat 2\0Sprinting hare 1\0Sprinting hare 2\0Wild scout 1\0Wild scout elite\0Hunter fox 1\0Hunter fox 2\0Hunter fox 3\0Hunter fox elite\0Timber wolf\0Ember wolf\0Wildfire wolf\0The howling alpha\0";
 
-    ImGui::Checkbox("Enabled", &profileChangerConfig.enabled);
+    ImGui::Checkbox(Language::getText(LanguageID::GUI_GLOBAL_ENABLED), &profileChangerConfig.enabled);
     ImGui::Combo("Rank", &profileChangerConfig.rank, mmrank);
     ImGui::InputInt("Wins", &profileChangerConfig.wins);
     ImGui::Combo("Wingman Rank", &profileChangerConfig.r_rank, mmrank);
