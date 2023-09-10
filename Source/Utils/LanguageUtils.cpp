@@ -66,10 +66,10 @@ void initChinese()
 	chinese[LanguageID::GUI_TAB_CONFIG] = "配置";
 	chinese[LanguageID::GUI_INVENTORYCHANGER_ADDITEM] = "添加物品...";
 	chinese[LanguageID::GUI_INVENTORYCHANGER_FORCEUPDATE] = "强制更新";
-	english[LanguageID::GUI_INVENTORYCHANGER_BACK] = "返回";
-	english[LanguageID::GUI_INVENTORYCHANGER_SEARCH] = "搜索武器皮肤, 印花, 刀, 手套, 音乐盒等...";
-	english[LanguageID::GUI_INVENTORYCHANGER_ADDALL] = "添加所有物品";
-	english[LanguageID::GUI_INVENTORYCHANGER_ADD] = "添加";
+	chinese[LanguageID::GUI_INVENTORYCHANGER_BACK] = "返回";
+	chinese[LanguageID::GUI_INVENTORYCHANGER_SEARCH] = "搜索武器皮肤, 印花, 刀, 手套, 音乐盒等...";
+	chinese[LanguageID::GUI_INVENTORYCHANGER_ADDALL] = "添加所有物品";
+	chinese[LanguageID::GUI_INVENTORYCHANGER_ADD] = "添加";
 	chinese[LanguageID::GUI_MISC_UNHOOK] = "卸载";
 	chinese[LanguageID::GUI_CONFIG_INCREMENTALLOAD] = "增强型加载";
 	chinese[LanguageID::GUI_CONFIG_NAME] = "参数名称";
