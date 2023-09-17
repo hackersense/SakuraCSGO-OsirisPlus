@@ -20,6 +20,7 @@
 #include "Interfaces.h"
 #include "Memory.h"
 #include "SDK/LocalPlayer.h"
+#include "SDK/SteamAPI.h"
 
 template <typename T>
 static constexpr auto relativeToAbsolute(uintptr_t address) noexcept
@@ -269,7 +270,7 @@ Memory::Memory() noexcept
 
     localPlayer.init(*reinterpret_cast<Entity***>(findPattern(CLIENT_DLL, "\xA1????\x89\x45\xBC\x85\xC0") + 1));
 
-    keyValuesSystem = reinterpret_cast<KeyValuesSystem* (STDCALL_CONV*)()>(GetProcAddress(GetModuleHandleW(L"vstdlib"), "KeyValuesSystem"))();
+    keyValuesSystem = reinterpret_cast<KeyValuesSystem*(STDCALL_CONV*)()>(GetProcAddress(GetModuleHandleW(L"vstdlib"), "KeyValuesSystem"))();
     keyValuesAllocEngine = relativeToAbsolute<std::uintptr_t>(findPattern(ENGINE_DLL, "\xE8????\x83\xC4\x08\x84\xC0\x75\x10\xFF\x75\x0C") + 1) + 0x4A;
     keyValuesAllocClient = relativeToAbsolute<std::uintptr_t>(findPattern(CLIENT_DLL, "\xE8????\x83\xC4\x08\x84\xC0\x75\x10") + 1) + 0x3E;
 

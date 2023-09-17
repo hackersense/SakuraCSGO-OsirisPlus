@@ -6,7 +6,6 @@
 #include <type_traits>
 
 #include "SDK/Platform.h"
-#include "SDK/SteamAPI.h"
 
 class ClientMode;
 template <typename T> class ClientSharedObjectCache;
@@ -24,6 +23,7 @@ class KeyValues;
 class MoveHelper;
 class MoveData;
 class MemAlloc;
+class GameCoordinator;
 class PanoramaMarshallHelper;
 class PlantedC4;
 class PlayerResource;

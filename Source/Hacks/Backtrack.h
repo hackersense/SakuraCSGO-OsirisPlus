@@ -17,7 +17,6 @@ struct UserCmd;
 
 struct Record
 {
-    std::deque<Vector> positions;
     Vector origin;
     float simulationTime;
     matrix3x4 matrix[256];

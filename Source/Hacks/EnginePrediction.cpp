@@ -19,6 +19,10 @@
 
 static int localPlayerFlags;
 static Vector localPlayerVelocity;
+static float previousCurrenttime{ 0.0f };
+static float previousFrametime{ 0.0f };
+static float previousIsFirstTimePredicted{ 0.0f };
+static float previousInPrediction{ 0.0f };
 static bool inPrediction{ false };
 static std::array<EnginePrediction::NetvarData, 150> netvarData;
 
@@ -33,23 +37,23 @@ void EnginePrediction::update() noexcept
     interfaces->prediction->update(deltaTick, deltaTick > 0, start, stop);
 }
 
-void EnginePrediction::run(UserCmd* cmd) noexcept
+void EnginePrediction::start(UserCmd* cmd) noexcept
 {
     if (!localPlayer || !localPlayer->isAlive())
         return;
 
-    inPrediction = true;
-
     localPlayerFlags = localPlayer->flags();
     localPlayerVelocity = localPlayer->velocity();
+
+    inPrediction = true;
 
     *memory->predictionRandomSeed = MathUtils::MD5_PseudoRandom(cmd->commandNumber) & INT_MAX; // 0x7FFFFFFF
     *memory->predictionPlayer = reinterpret_cast<int>(localPlayer.get());
 
-    const auto oldCurrenttime = memory->globalVars->currenttime;
-    const auto oldFrametime = memory->globalVars->frametime;
-    const auto oldIsFirstTimePredicted = interfaces->prediction->isFirstTimePredicted;
-    const auto oldInPrediction = interfaces->prediction->inPrediction;
+    previousCurrenttime = memory->globalVars->currenttime;
+    previousFrametime = memory->globalVars->frametime;
+    previousIsFirstTimePredicted = interfaces->prediction->isFirstTimePredicted;
+    previousInPrediction = interfaces->prediction->inPrediction;
 
     memory->globalVars->currenttime = memory->globalVars->serverTime();
     memory->globalVars->frametime = memory->globalVars->intervalPerTick;
@@ -64,31 +68,37 @@ void EnginePrediction::run(UserCmd* cmd) noexcept
 
     localPlayer->updateButtonState(cmd->buttons);
 
-    interfaces->gameMovement->startTrackPredictionErrors(localPlayer.get());
     interfaces->prediction->checkMovingGround(localPlayer.get(), memory->globalVars->frametime);
     memory->moveHelper->setHost(localPlayer.get());
+    interfaces->gameMovement->startTrackPredictionErrors(localPlayer.get());
+
     interfaces->prediction->setupMove(localPlayer.get(), cmd, memory->moveHelper, memory->moveData);
     interfaces->gameMovement->processMovement(localPlayer.get(), memory->moveData);
     interfaces->prediction->finishMove(localPlayer.get(), cmd, memory->moveData);
     memory->moveHelper->processImpacts();
-    memory->moveHelper->setHost(nullptr);
-    interfaces->gameMovement->reset();
-
-    *memory->predictionRandomSeed = -1;
-    *memory->predictionPlayer = 0;
-
-    memory->globalVars->currenttime = oldCurrenttime;
-    memory->globalVars->frametime = oldFrametime;
-    interfaces->prediction->isFirstTimePredicted = oldIsFirstTimePredicted;
-    interfaces->prediction->inPrediction = oldInPrediction;
-
-    inPrediction = false;
 
     const auto activeWeapon = localPlayer->getActiveWeapon();
     if (!activeWeapon || activeWeapon->isGrenade() || activeWeapon->isKnife())
         return;
 
     activeWeapon->updateAccuracyPenalty();
+}
+
+void EnginePrediction::finsh() noexcept
+{
+    interfaces->gameMovement->finishTrackPredictionErrors(localPlayer.get());
+    memory->moveHelper->setHost(nullptr);
+    interfaces->gameMovement->reset();
+
+    *memory->predictionRandomSeed = -1;
+    *memory->predictionPlayer = 0;
+
+    memory->globalVars->currenttime = previousCurrenttime;
+    memory->globalVars->frametime = previousFrametime;
+    interfaces->prediction->isFirstTimePredicted = previousIsFirstTimePredicted;
+    interfaces->prediction->inPrediction = previousInPrediction;
+
+    inPrediction = false;
 }
 
 void EnginePrediction::store() noexcept

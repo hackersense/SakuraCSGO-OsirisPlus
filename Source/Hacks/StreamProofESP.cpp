@@ -493,46 +493,14 @@ static bool renderPlayerEsp(PlayerData& playerData, const Player& playerConfig, 
         if (!studioModel)
             return true;
 
-        matrix3x4 boneMatrices[MAXSTUDIOBONES];
-        if (!entity->setupBones(boneMatrices, MAXSTUDIOBONES, BONE_USED_BY_HITBOX, memory->globalVars->currenttime, playerData.dormantOrigin))
-            return true;
-
-        playerData.bones.clear();
-        playerData.bones.reserve(20);
-
-        for (int i = 0; i < studioModel->numBones; ++i)
-        {
-            const auto bone = studioModel->getBone(i);
-
-            if (!bone || bone->parent == -1 || !(bone->flags & BONE_USED_BY_HITBOX))
-                continue;
-
-            playerData.bones.emplace_back(boneMatrices[i].origin(), boneMatrices[bone->parent].origin());
-        }
-
         const auto set = studioModel->getHitboxSet(entity->hitboxSet());
 
         if (!set)
             return true;
 
-        const auto headBox = set->getHitbox(0);
-
-        playerData.headMins = transform(headBox->bbMin, boneMatrices[headBox->bone]);
-        playerData.headMaxs = transform(headBox->bbMax, boneMatrices[headBox->bone]);
-
-        if (headBox->capsuleRadius > 0.0f)
-        {
-            playerData.headMins -= headBox->capsuleRadius;
-            playerData.headMaxs += headBox->capsuleRadius;
-        }
-
         renderPlayerBox(playerData, playerConfig);
-        drawPlayerSkeleton(playerConfig.skeleton, playerData.bones);
-
-        if (const BoundingBox headBbox{ playerData.headMins, playerData.headMaxs, playerConfig.headBox.scale })
-            renderBox(headBbox, playerConfig.headBox);
     }
-    else
+    else if (!playerData.dormant)
     {
         renderPlayerBox(playerData, playerConfig);
         drawPlayerSkeleton(playerConfig.skeleton, playerData.bones);

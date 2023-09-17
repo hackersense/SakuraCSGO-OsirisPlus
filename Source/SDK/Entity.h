@@ -146,7 +146,7 @@ public:
         return VirtualMethod::call<bool, 13>(this + sizeof(uintptr_t), out, maxBones, boneMask, currentTime);
     }
 
-    bool setupBones(matrix3x4* out, int maxBones, int boneMask, float currentTime, Vector customOrigin = Vector(0, 0, 0)) noexcept;
+    bool setupBones(matrix3x4* out, int maxBones, int boneMask, float currentTime) noexcept;
     Vector getBonePosition(int bone) noexcept;
 
     bool isVisible(const Vector& position = { }) noexcept;

@@ -5,6 +5,10 @@
 #include <memory>
 
 #include "../SDK/Platform.h"
+#ifdef _WIN32
+#include <x86RetSpoof.h>
+#include "../Memory.h"
+#endif
 
 class VmtHook {
 public:
@@ -21,7 +25,21 @@ public:
     template<typename T, std::size_t Idx, typename ...Args>
     constexpr auto callOriginal(Args... args) const noexcept
     {
+#ifdef _WIN32
+        return x86RetSpoof::invokeThiscall<T, Args...>(std::uintptr_t(base), oldVmt[Idx], memory->jmpEbxGadgetInClient, args...);
+#else
         return getOriginal<T, Idx>(args...)(base, args...);
+#endif
+    }
+
+    template<typename T, typename Base, std::size_t Idx, typename ...Args>
+    constexpr auto callOriginal(Base base, Args... args) const noexcept
+    {
+#ifdef _WIN32
+        return x86RetSpoof::invokeThiscall<T, Args...>(std::uintptr_t(base), oldVmt[Idx], memory->jmpEbxGadgetInClient, args...);
+#else
+        return getOriginal<T, Idx>(args...)(base, args...);
+#endif
     }
 
 private:

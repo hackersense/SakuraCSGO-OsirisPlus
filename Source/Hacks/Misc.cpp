@@ -92,6 +92,8 @@ struct MiscConfig {
     bool fastDuck{ false };
     bool moonwalk{ false };
     bool edgejump{ false };
+    bool minijump{ false };
+    bool jumpbug{ false };
     bool slowwalk{ false };
     bool autoPistol{ false };
     bool autoReload{ false };
@@ -121,6 +123,9 @@ struct MiscConfig {
     bool oppositeHandKnife = false;
     PreserveKillfeed preserveKillfeed;
     char clanTag[16];
+    KeyBind minijumpkey;
+    int miniJumpCrouchLock{ 0 };
+    KeyBind jumpbugkey;
     KeyBind edgejumpkey;
     KeyBind slowwalkKey;
     ColorToggleThickness noscopeCrosshair;
@@ -1041,6 +1046,59 @@ void Misc::moonwalk(UserCmd* cmd) noexcept
         cmd->buttons ^= UserCmd::IN_FORWARD | UserCmd::IN_BACK | UserCmd::IN_MOVELEFT | UserCmd::IN_MOVERIGHT;
 }
 
+void Misc::miniJump(UserCmd* cmd) noexcept
+{
+    static int lockedTicks = 0;
+    if (!miscConfig.minijumpkey.isDown() || miscConfig.miniJumpCrouchLock <= 0)
+    {
+        lockedTicks = 0;
+        return;
+    }
+
+    if (!localPlayer || !localPlayer->isAlive())
+    {
+        lockedTicks = 0;
+        return;
+    }
+
+    if (localPlayer->moveType() == MoveType::NOCLIP || localPlayer->moveType() == MoveType::LADDER)
+    {
+        lockedTicks = 0;
+        return;
+    }
+
+    if (lockedTicks >= 1)
+    {
+        cmd->buttons |= UserCmd::IN_DUCK;
+        lockedTicks--;
+    }
+
+    if ((EnginePrediction::getFlags() & 1) && !(localPlayer->flags() & 1))
+    {
+        cmd->buttons |= UserCmd::IN_JUMP;
+        cmd->buttons |= UserCmd::IN_DUCK;
+        lockedTicks = miscConfig.miniJumpCrouchLock;
+    }
+}
+
+void Misc::jumpBug(UserCmd* cmd) noexcept
+{
+    if (!miscConfig.jumpbugkey.isDown())
+        return;
+
+    if (!localPlayer || !localPlayer->isAlive())
+        return;
+
+    if (const auto mt = localPlayer->moveType(); mt == MoveType::LADDER || mt == MoveType::NOCLIP)
+        return;
+
+    if (!(EnginePrediction::getFlags() & 1) && (localPlayer->flags() & 1))
+        cmd->buttons |= UserCmd::IN_DUCK;
+
+    if (localPlayer->flags() & 1)
+        cmd->buttons &= ~UserCmd::IN_JUMP;
+}
+
 void Misc::playHitSound(GameEvent& event) noexcept
 {
     if (!miscConfig.hitSound)
@@ -1613,6 +1671,22 @@ void Misc::drawGUI(bool contentOnly) noexcept
     ImGui::PushID("Slowwalk Key");
     ImGui::hotkey("", miscConfig.slowwalkKey);
     ImGui::PopID();
+
+    ImGui::Checkbox("Mini jump", &miscConfig.minijump);
+    ImGui::SameLine();
+    ImGui::PushID("Mini jump Key");
+    ImGui::hotkey("", miscConfig.minijumpkey);
+    ImGui::PopID();
+    if (miscConfig.minijump) {
+        ImGui::SliderInt("Crouch lock", &miscConfig.miniJumpCrouchLock, 0, 12, "%d ticks");
+    }
+
+    ImGui::Checkbox("Jump bug", &miscConfig.jumpbug);
+    ImGui::SameLine();
+    ImGui::PushID("Jump bug Key");
+    ImGui::hotkey("", miscConfig.jumpbugkey);
+    ImGui::PopID();
+
     ImGuiCustom::colorPicker("Noscope crosshair", miscConfig.noscopeCrosshair);
     ImGuiCustom::colorPicker("Recoil crosshair", miscConfig.recoilCrosshair);
     ImGui::Checkbox("Auto pistol", &miscConfig.autoPistol);
@@ -1887,6 +1961,11 @@ static void from_json(const json& j, MiscConfig& m)
     read(j, "Moonwalk", m.moonwalk);
     read(j, "Edge Jump", m.edgejump);
     read(j, "Edge Jump Key", m.edgejumpkey);
+    read(j, "Mini Jump", m.minijump);
+    read(j, "Mini Jump Crouch lock", m.miniJumpCrouchLock);
+    read(j, "Mini Jump Key", m.minijumpkey);
+    read(j, "Jump Bug", m.jumpbug);
+    read(j, "Jump Bug Key", m.jumpbugkey);
     read(j, "Slowwalk", m.slowwalk);
     read(j, "Slowwalk key", m.slowwalkKey);
     read<value_t::object>(j, "Noscope crosshair", m.noscopeCrosshair);
@@ -2041,6 +2120,11 @@ static void to_json(json& j, const MiscConfig& o)
     WRITE("Moonwalk", moonwalk);
     WRITE("Edge Jump", edgejump);
     WRITE("Edge Jump Key", edgejumpkey);
+    WRITE("Mini Jump", minijump);
+    WRITE("Mini Jump Crouch lock", miniJumpCrouchLock);
+    WRITE("Mini Jump Key", minijumpkey);
+    WRITE("Jump Bug", jumpbug);
+    WRITE("Jump Bug Key", jumpbugkey);
     WRITE("Slowwalk", slowwalk);
     WRITE("Slowwalk key", slowwalkKey);
     WRITE("Noscope crosshair", noscopeCrosshair);

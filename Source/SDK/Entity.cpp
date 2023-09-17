@@ -13,7 +13,7 @@
 
 #include "matrix3x4.h"
 
-bool Entity::setupBones(matrix3x4* out, int maxBones, int boneMask, float currentTime, Vector customOrigin) noexcept
+bool Entity::setupBones(matrix3x4* out, int maxBones, int boneMask, float currentTime) noexcept
 {
 #ifdef _WIN32
     if (Misc::shouldFixBoneMatrix()) {
@@ -27,7 +27,7 @@ bool Entity::setupBones(matrix3x4* out, int maxBones, int boneMask, float curren
         getEffects() |= 8;
 
         if (this != localPlayer.get())
-            memory->setAbsOrigin(this, customOrigin.notNull() ? customOrigin : origin());
+            memory->setAbsOrigin(this, origin());
 
         invalidateBoneCache();
 

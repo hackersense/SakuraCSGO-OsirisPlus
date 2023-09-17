@@ -54,6 +54,8 @@ namespace Misc
     void autoStrafe(UserCmd* cmd, Vector& currentViewAngles) noexcept;
     void removeCrouchCooldown(UserCmd* cmd) noexcept;
     void moonwalk(UserCmd* cmd) noexcept;
+    void miniJump(UserCmd* cmd) noexcept;
+    void jumpBug(UserCmd* cmd) noexcept;
     void playHitSound(GameEvent& event) noexcept;
     void killSound(GameEvent& event) noexcept;
     void purchaseList(GameEvent* event = nullptr) noexcept;

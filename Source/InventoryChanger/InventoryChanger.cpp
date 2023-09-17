@@ -696,10 +696,12 @@ private:
     const WeaponNames& weaponNames;
 };
 
-void InventoryChanger::scheduleHudUpdate() noexcept
+void InventoryChanger::scheduleHudUpdate(bool shouldCvar) noexcept
 {
-    CSGOUtils::getClientState()->forceFullUpdate();
-    //interfaces->cvar->findVar("cl_fullupdate")->changeCallback();
+    if (!shouldCvar)
+        CSGOUtils::getClientState()->forceFullUpdate();
+    else
+        interfaces->cvar->findVar("cl_fullupdate")->changeCallback();
     hudUpdateRequired = true;
 }
 

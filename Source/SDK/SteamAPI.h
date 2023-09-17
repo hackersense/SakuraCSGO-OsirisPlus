@@ -1,13 +1,6 @@
 ﻿#pragma once
-#include <iostream>
 
-template<typename FuncType>
-__forceinline static FuncType CallVFunction(void* ppClass, int index)
-{
-	int* pVTable = *(int**)ppClass;
-	int dwAddress = pVTable[index];
-	return (FuncType)(dwAddress);
-}
+#include <iostream>
 
 enum class Result
 {
@@ -26,39 +19,39 @@ public:
 	virtual Result retrieveMessage(int* punMsgType, void* pubDest, int cubDest, int* pcubMsgSize) = 0;
 };
 
-class ID
+class SteamID
 {
 public:
-	ID()
+	SteamID()
 	{
 		steamid.comp.unAccountID = 0;
 		steamid.comp.accountType = 0;
 		steamid.comp.universe = 0;
 		steamid.comp.unAccountInstance = 0;
 	}
-	uint32_t getAccountID() const { return steamid.comp.unAccountID; }
+	std::uint32_t getAccountID() const { return steamid.comp.unAccountID; }
 
 private:
-	union SteamID
+	union SteamIDInfo
 	{
 		struct SteamIDComponent
 		{
-			uint32_t			unAccountID : 32;			// unique account identifier
-			unsigned int		unAccountInstance : 20;	// dynamic instance ID (used for multiseat type accounts only)
-			unsigned int		accountType : 4;			// type of account - can't show as EAccountType, due to signed / unsigned difference
-			int					universe : 8;	// universe this account belongs to
+			std::uint32_t			unAccountID : 32;			// unique account identifier
+			std::uint32_t			unAccountInstance : 20;	// dynamic instance ID (used for multiseat type accounts only)
+			std::uint32_t			accountType : 4;			// type of account - can't show as EAccountType, due to signed / unsigned difference
+			int						universe : 8;	// universe this account belongs to
 		} comp;
 
-		uint64_t unAll64Bits;
+		std::uint64_t unAll64Bits;
 	} steamid;
 };
 
 class User
 {
 public:
-	virtual uint32_t getSteamUser() = 0;
+	virtual std::uint32_t getSteamUser() = 0;
 	virtual bool loggedOn() = 0;
-	virtual ID getSteamID() = 0;
+	virtual SteamID getSteamID() = 0;
 };
 
 class SteamClient
@@ -66,13 +59,11 @@ class SteamClient
 public:
 	User* getUser(void* user, void* pipe, const char* pchVersion)
 	{
-		typedef User* (__stdcall* func)(void*, void*, const char*);
-		return CallVFunction<func>(this, 5)(user, pipe, pchVersion);
+		return (*reinterpret_cast<User*(THISCALL_CONV***)(void*, void*, void*, const char*)>(this))[5](this, user, pipe, pchVersion);
 	}
 
 	GameCoordinator* getGenericInterface(void* user, void* pipe, const char* pchVersion)
 	{
-		typedef GameCoordinator* (__stdcall* func)(void*, void*, const char*);
-		return CallVFunction<func>(this, 12)(user, pipe, pchVersion);
+		return (*reinterpret_cast<GameCoordinator*(THISCALL_CONV***)(void*, void*, void*, const char*)>(this))[12](this, user, pipe, pchVersion);
 	}
 };

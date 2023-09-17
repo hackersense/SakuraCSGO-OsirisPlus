@@ -5,7 +5,7 @@
 
 #include "../SDK/Platform.h"
 #ifdef _WIN32
-#include "../x86RetSpoof.h"
+#include <x86RetSpoof.h>
 #include "../Memory.h"
 #endif
 

@@ -27,7 +27,7 @@ namespace
                 Misc::purchaseList(event);
                 break;
             case fnv::hash("round_start_pre_entity"):
-                inventory_changer::InventoryChanger::instance().scheduleHudUpdate();
+                inventory_changer::InventoryChanger::instance().scheduleHudUpdate(true);
                 break;
             case fnv::hash("player_death"): {
                 auto& inventoryChanger = inventory_changer::InventoryChanger::instance();

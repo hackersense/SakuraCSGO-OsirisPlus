@@ -66,7 +66,7 @@ public:
     void drawGUI(bool contentOnly);
 
     void run(csgo::FrameStage frameStage) noexcept;
-    void scheduleHudUpdate() noexcept;
+    void scheduleHudUpdate(bool shouldCvar = false) noexcept;
     void onSoUpdated(SharedObject* object) noexcept;
 
 private:

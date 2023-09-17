@@ -73,6 +73,7 @@
 #include "SDK/StudioRender.h"
 #include "SDK/Surface.h"
 #include "SDK/UserCmd.h"
+#include "SDK/SteamAPI.h"
 #include "SDK/ViewSetup.h"
 #include "SDK/UtlRbTree.h"
 #include "SDK/CStudioHdr.h"
@@ -233,12 +234,13 @@ static bool STDCALL_CONV createMove(float inputSampleTime, UserCmd* cmd, bool& s
 #endif
 
     EnginePrediction::update();
-    EnginePrediction::run(cmd);
+    EnginePrediction::start(cmd);
     GrenadePrediction::run(cmd);
 
     Aimbot::run(cmd);
     Triggerbot::run(cmd);
     Backtrack::run(cmd);
+    Misc::miniJump(cmd);
     Misc::edgejump(cmd);
     Misc::moonwalk(cmd);
     Misc::fastPlant(cmd);
@@ -251,6 +253,9 @@ static bool STDCALL_CONV createMove(float inputSampleTime, UserCmd* cmd, bool& s
     Aimbot::fixMouseDelta(cmd);
 
     Misc::autoStrafe(cmd, currentViewAngles);
+    Misc::jumpBug(cmd);
+
+    EnginePrediction::finsh();
 
     auto viewAnglesDelta{ cmd->viewangles - previousViewAngles };
     viewAnglesDelta.normalize();
@@ -641,13 +646,11 @@ static void FASTCALL_CONV processPacket(void* thisptr, void* edx, void* packet, 
 
 static void FASTCALL_CONV standardBlendingRulesHook(void* thisPointer, void* edx, void* hdr, void* pos, void* q, float currentTime, int boneMask) noexcept
 {
-    static auto original = hooks->standardBlendingRules.getOriginal<void>(hdr, pos, q, currentTime, boneMask);
-
     const auto entity = reinterpret_cast<Entity*>(thisPointer);
 
     entity->getEffects() |= 8;
 
-    original(thisPointer, hdr, pos, q, currentTime, boneMask);
+    hooks->standardBlendingRules.callOriginal<void, void*>(thisPointer, hdr, pos, q, currentTime, boneMask);
 
     entity->getEffects() &= ~8;
 }
@@ -808,7 +811,7 @@ static bool FASTCALL_CONV isConnected() noexcept
 
 static Result FASTCALL_CONV retrieveMessage(void* ecx, void* edx, uint32_t* messageType, void* pubDest, uint32_t cubDest, uint32_t* messageSize)
 {
-    const auto status = hooks->gameCoordinator.getOriginal<Result, 2>(messageType, pubDest, cubDest, messageSize)(ecx, messageType, pubDest, cubDest, messageSize);
+    const auto status = hooks->gameCoordinator.callOriginal<Result, void*, 2>(ecx, messageType, pubDest, cubDest, messageSize);
 
     if (ProfileChanger::isEnabled() && status == Result::OK)
     {
@@ -878,9 +881,9 @@ void Hooks::install() noexcept
 #ifdef _WIN32
     particleCollectionSimulate.detour(memory->particleCollection, particleCollectionSimulateHook);
     sendDatagram.detour(memory->sendDatagram, sendDatagramHook);
-    //standardBlendingRules.detour(memory->standardBlendingRules, standardBlendingRulesHook);
-    //shouldSkipAnimationFrame.detour(memory->shouldSkipAnimationFrame, shouldSkipAnimationFrameHook);
-    //checkForSequenceChange.detour(memory->checkForSequenceChange, checkForSequenceChangeHook);
+    standardBlendingRules.detour(memory->standardBlendingRules, standardBlendingRulesHook);
+    shouldSkipAnimationFrame.detour(memory->shouldSkipAnimationFrame, shouldSkipAnimationFrameHook);
+    checkForSequenceChange.detour(memory->checkForSequenceChange, checkForSequenceChangeHook);
     isSecureServerAllowed.detour(memory->isSecureServerAllowed, HookedHost_IsSecureServerAllowed);
 #endif
     

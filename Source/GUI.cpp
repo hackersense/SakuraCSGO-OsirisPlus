@@ -598,7 +598,7 @@ void GUI::renderConfigWindow(bool contentOnly) noexcept
 
                 if (ImGui::Selectable(names[i])) {
                     switch (i) {
-                    case 0: config->reset(); updateColors(); Misc::updateClanTag(true); inventory_changer::InventoryChanger::instance().scheduleHudUpdate(); break;
+                    case 0: config->reset(); updateColors(); Misc::updateClanTag(true); inventory_changer::InventoryChanger::instance().scheduleHudUpdate(true); break;
                     case 1: config->aimbot = { }; break;
                     case 2: config->triggerbot = { }; break;
                     case 3: Backtrack::resetConfig(); break;
@@ -608,7 +608,7 @@ void GUI::renderConfigWindow(bool contentOnly) noexcept
                     case 7: config->streamProofESP = { }; break;
                     case 8: Visuals::resetConfig(); break;
                     case 9: ProfileChanger::resetConfig(); ProfileChanger::onUpdateAll(); break;
-                    case 10: inventory_changer::InventoryChanger::instance().reset(); inventory_changer::InventoryChanger::instance().scheduleHudUpdate(); break;
+                    case 10: inventory_changer::InventoryChanger::instance().reset(); inventory_changer::InventoryChanger::instance().scheduleHudUpdate(true); break;
                     case 11: Sound::resetConfig(); break;
                     case 12: config->style = { }; updateColors(); break;
                     case 13: Misc::resetConfig(); Misc::updateClanTag(true); break;
@@ -622,7 +622,7 @@ void GUI::renderConfigWindow(bool contentOnly) noexcept
                 config->load(currentConfig, incrementalLoad);
                 updateColors();
                 ProfileChanger::onUpdateAll();
-                inventory_changer::InventoryChanger::instance().scheduleHudUpdate();
+                inventory_changer::InventoryChanger::instance().scheduleHudUpdate(true);
                 Misc::updateClanTag(true);
             }
             if (ImGui::Button("Save selected", { 100.0f, 25.0f }))

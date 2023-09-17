@@ -87,7 +87,7 @@ void Backtrack::update(csgo::FrameStage stage) noexcept
 
         for (int i = 1; i <= interfaces->engine->getMaxClients(); i++) {
             auto entity = interfaces->entityList->getEntity(i);
-            if (!entity || entity == localPlayer.get() || entity->isDormant() || !entity->isAlive() || !entity->isOtherEnemy(localPlayer.get()) || entity->gunGameImmunity()) {
+            if (!entity || entity == localPlayer.get() || entity->isDormant() || !entity->isAlive() || !entity->isOtherEnemy(localPlayer.get())) {
                 records[i].clear();
                 continue;
             }
@@ -99,12 +99,7 @@ void Backtrack::update(csgo::FrameStage stage) noexcept
             record.origin = entity->getAbsOrigin();
             record.simulationTime = entity->simulationTime();
 
-            entity->setupBones(record.matrix, 256, 0x7FF00, memory->globalVars->currenttime);
-
-            if (record.matrix)
-                record.positions.push_back(record.matrix[8].origin());
-                //for (auto bone : { 8, 4, 3, 7, 6, 5 })
-                //    record.positions.push_back(record.matrix[bone].origin());
+            entity->setupBones(record.matrix, 256, BONE_USED_BY_ANYTHING, memory->globalVars->currenttime);
 
             records[i].push_front(record);
 
@@ -140,6 +135,7 @@ void Backtrack::run(UserCmd* cmd) noexcept
     auto bestFov{ 255.f };
     Entity* bestTarget{ };
     int bestTargetIndex{ };
+    Vector bestTargetOrigin{ };
     int bestRecord{ };
 
     const auto aimPunch = (backtrackConfig.recoilBasedFov && localPlayer->getActiveWeapon()->requiresRecoilControl()) ? localPlayer->getAimPunch() : Vector{ };
@@ -147,37 +143,43 @@ void Backtrack::run(UserCmd* cmd) noexcept
     for (int index = 1; index <= interfaces->engine->getMaxClients(); index++) {
         auto entity = interfaces->entityList->getEntity(index);
         if (!entity || entity == localPlayer.get() || entity->isDormant() || !entity->isAlive()
-            || !entity->isOtherEnemy(localPlayer.get())) //  || entity->simulationTime() < entity->oldSimulationTime()
+            || !entity->isOtherEnemy(localPlayer.get()))
             continue;
 
-        if (records.empty() || (!backtrackConfig.ignoreSmoke && memory->lineGoesThroughSmoke(localPlayer->getEyePosition(), entity->getAbsOrigin(), 1)))
-            continue;
+        const auto& origin = entity->getAbsOrigin();
 
-        for (int i = static_cast<int>(records[index].size() - 1); i >= 0; i--)
-        {
-            const auto& record = records[index][i];
+        auto angle = Aimbot::calculateRelativeAngle(localPlayerEyePosition, origin, cmd->viewangles + aimPunch);
+        auto fov = std::hypotf(angle.x, angle.y);
+        if (fov < bestFov) {
+            bestFov = fov;
+            bestTarget = entity;
+            bestTargetIndex = index;
+            bestTargetOrigin = origin;
+        }
+    }
+
+    if (bestTarget) {
+        if (records.empty() || (!backtrackConfig.ignoreSmoke && memory->lineGoesThroughSmoke(localPlayer->getEyePosition(), bestTargetOrigin, 1)))
+            return;
+
+        bestFov = 255.f;
+
+        for (size_t i = 0; i < records[bestTargetIndex].size(); i++) {
+            const auto& record = records[bestTargetIndex][i];
             if (!valid(record.simulationTime))
                 continue;
 
-            for (auto& position : record.positions) {
-                auto angle = Aimbot::calculateRelativeAngle(localPlayerEyePosition, position, cmd->viewangles + aimPunch);
-                auto fov = std::hypotf(angle.x, angle.y);
-                if (fov < bestFov) {
-                    bestFov = fov;
-                    bestRecord = i;
-                    bestTarget = entity;
-                    bestTargetIndex = index;
-                }
+            auto angle = Aimbot::calculateRelativeAngle(localPlayerEyePosition, record.origin, cmd->viewangles + aimPunch);
+            auto fov = std::hypotf(angle.x, angle.y);
+            if (fov < bestFov) {
+                bestFov = fov;
+                bestRecord = i;
             }
         }
     }
 
     if (bestRecord) {
         const auto& record = records[bestTargetIndex][bestRecord];
-
-        if (!record.matrix)
-            return;
-
         memory->setAbsOrigin(bestTarget, record.origin);
         cmd->tickCount = timeToTicks(record.simulationTime + getLerp());
     }
