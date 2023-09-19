@@ -698,7 +698,7 @@ private:
 
 void InventoryChanger::scheduleHudUpdate(bool shouldCvar) noexcept
 {
-    if (!shouldCvar)
+    if (!shouldCvar && localPlayer)
         CSGOUtils::getClientState()->forceFullUpdate();
     else
         interfaces->cvar->findVar("cl_fullupdate")->changeCallback();

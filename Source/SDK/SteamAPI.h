@@ -29,17 +29,20 @@ public:
 		steamid.comp.universe = 0;
 		steamid.comp.unAccountInstance = 0;
 	}
-	std::uint32_t getAccountID() const { return steamid.comp.unAccountID; }
 
+	std::uint32_t getAccountID() const
+	{
+		return steamid.comp.unAccountID;
+	}
 private:
 	union SteamIDInfo
 	{
 		struct SteamIDComponent
 		{
 			std::uint32_t			unAccountID : 32;			// unique account identifier
-			std::uint32_t			unAccountInstance : 20;	// dynamic instance ID (used for multiseat type accounts only)
+			std::uint32_t			unAccountInstance : 20;		// dynamic instance ID (used for multiseat type accounts only)
 			std::uint32_t			accountType : 4;			// type of account - can't show as EAccountType, due to signed / unsigned difference
-			int						universe : 8;	// universe this account belongs to
+			int						universe : 8;				// universe this account belongs to
 		} comp;
 
 		std::uint64_t unAll64Bits;
