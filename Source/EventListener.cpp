@@ -49,9 +49,9 @@ namespace
             case fnv::hash("round_mvp"):
                 inventory_changer::InventoryChanger::instance().onRoundMVP(*event);
                 break;
-            case fnv::hash("player_spawn"): // https://github.com/JDW1337/AntiDLL/blob/main/data/antidll/events_detection.txt#L40
-                inventory_changer::InventoryChanger::instance().playerSpawn(*event);
-                break;
+            //case fnv::hash("player_spawn"): // https://github.com/JDW1337/AntiDLL/blob/main/data/antidll/events_detection.txt#L40
+            //    inventory_changer::InventoryChanger::instance().playerSpawn(*event);
+            //    break;
             case fnv::hash("player_team"):
                 inventory_changer::InventoryChanger::instance().playerSwap(*event);
                 break;
